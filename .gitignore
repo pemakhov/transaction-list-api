@@ -63,3 +63,6 @@ typings/
 # editors
 .vscode
 .idea
+
+# requests
+requests.rest
