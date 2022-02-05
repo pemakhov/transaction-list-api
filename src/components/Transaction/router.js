@@ -3,8 +3,6 @@ const TransactionComponent = require('.');
 
 const router = Router();
 
-router.get('/', TransactionComponent.getLatestBlockTransactions);
-
-router.get('/dump', TransactionComponent.getInitialTransactionDump);
+router.get('/', TransactionComponent.test);
 
 module.exports = router;
