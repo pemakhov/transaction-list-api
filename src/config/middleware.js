@@ -5,7 +5,7 @@ const { STAGE } = require('./constants');
 
 /**
  * Joins middleware to the app.
- * @param {} app the instance of the express app.
+ * @param {Express.Application} app the instance of the express app.
  */
 function init(app) {
   app.use(bodyParser.urlencoded({ extended: true }));

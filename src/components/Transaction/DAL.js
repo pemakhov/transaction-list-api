@@ -28,8 +28,29 @@ function updateConfirmationsNumber(_id, newConfirmations) {
   return TransactionModel.updateOne({ _id }, { confirmations: newConfirmations }).exec();
 }
 
+/**
+ * Finds latest transactions.
+ * @param {number} limit the number of transactions to find.
+ * @returns transactions.
+ */
+function findLatestTransactions(limit) {
+  return TransactionModel.find({}).sort({ date: -1 }).limit(limit).exec();
+}
+
+/**
+ * Finds transactions by filter.
+ * @param {object} param0 contains filter name and value, limit and number to skip.
+ * @returns transactions.
+ */
+function findTransactions({ filter, value, limit, skip }) {
+  console.log({ filter, value, limit, skip });
+  return TransactionModel.find({ [filter]: value }).skip(skip).limit(limit).exec();
+}
+
 module.exports = {
   create,
   findById,
   updateConfirmationsNumber,
+  findLatestTransactions,
+  findTransactions,
 };

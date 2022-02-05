@@ -4,7 +4,7 @@ const express = require('express');
 const middleware = require('./config/middleware');
 const router = require('./config/router');
 const { PORT } = require('./config/constants');
-const Scanner = require('./components/Transaction/scanner');
+const Scanner = require('./components/Scanner/scanner');
 
 const app = express();
 middleware.init(app);

@@ -66,3 +66,6 @@ typings/
 
 # requests
 requests.rest
+
+# notes (something you want to write during development)
+notes.txt

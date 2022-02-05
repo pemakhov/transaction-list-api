@@ -5,7 +5,7 @@ const pathToIndex = path.join(__dirname, '../public/', 'index.html');
 
 /**
  * Joins router middleware to the app.
- * @param {Express} app the instance of the express app.
+ * @param {Express.Application} app the instance of the express app.
 
  */
 function init(app) {
