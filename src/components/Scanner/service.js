@@ -93,7 +93,7 @@ async function getTransactionByHash(hash) {
  * @returns {array} an array of transactions.
  */
 function getTransactions(block) {
-  const { timestamp, transactions } = block;
+  const { timestamp, transactions, number } = block;
   return transactions.map((item) => {
     const { hash, from, to, blockNumber, value, gas, gasPrice } = item;
     return {
@@ -101,7 +101,7 @@ function getTransactions(block) {
       from,
       to,
       blockNumber,
-      confirmations: 0,
+      confirmations: calcAdditionToConfirmations(blockNumber, number),
       date: timestamp,
       value,
       fee: calcFee(gas, gasPrice),

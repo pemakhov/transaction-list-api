@@ -10,8 +10,8 @@ const TransactionQuerySchema = require('./schemas/TransactionsQuerySchema');
 async function getLastTransactions(req, res, next) {
   try {
     const { limit } = req.params;
-    const result = await findLatestTransactions(limit);
-    res.send(result);
+    const transactions = await findLatestTransactions(limit);
+    res.send(transactions);
   } catch (error) {
     next(error);
   }
@@ -31,8 +31,9 @@ async function getTransactions(req, res, next) {
     }
     const { page, limit, ...rest } = value;
     const skip = page * limit;
-    const transactions = await findTransactions({ ...rest, limit, skip });
-    return res.send(transactions);
+    const data = await findTransactions({ ...rest, limit, skip });
+    console.log({ data });
+    return res.send(data);
   } catch (e) {
     return next(e);
   }

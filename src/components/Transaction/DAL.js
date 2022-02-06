@@ -42,9 +42,19 @@ function findLatestTransactions(limit) {
  * @param {object} param0 contains filter name and value, limit and number to skip.
  * @returns transactions.
  */
-function findTransactions({ filter, value, limit, skip }) {
-  console.log({ filter, value, limit, skip });
-  return TransactionModel.find({ [filter]: value }).skip(skip).limit(limit).exec();
+async function findTransactions({ filter, value, limit, skip }) {
+  const query = { [filter]: value };
+  const [{ transactions, totalCount }] = await TransactionModel.aggregate([
+    {
+      $facet: {
+        transactions: [{ $match: query }, { $skip: skip }, { $limit: limit }],
+        totalCount: [{ $match: query }, { $count: 'pages' }],
+      },
+    },
+  ]);
+  const [{ pages }] = totalCount;
+  console.log({ transactions });
+  return { transactions, pages };
 }
 
 module.exports = {
