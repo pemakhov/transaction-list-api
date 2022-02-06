@@ -9,8 +9,8 @@ const INITIALIZATION_BLOCKS = Number(process.env.INITIALIZATION_BLOCKS) || 1000;
 const TRANSACTION_FILTERS = ['from', 'to', 'blockNumber', '_id'];
 
 // Ether currency
-const WAI_IN_GWAI = 1000000000;
-const GWAI_IN_ETH = 1000000000;
+const WEI_IN_GWAI = 1000000000;
+const GWEI_IN_ETH = 1000000000;
 
 module.exports = {
   PORT,
@@ -18,6 +18,6 @@ module.exports = {
   CALLS_TIMEOUT,
   INITIALIZATION_BLOCKS,
   TRANSACTION_FILTERS,
-  WAI_IN_GWAI,
-  GWAI_IN_ETH,
+  WEI_IN_GWAI,
+  GWEI_IN_ETH,
 };
