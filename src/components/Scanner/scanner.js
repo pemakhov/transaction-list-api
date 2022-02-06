@@ -2,25 +2,55 @@ const {
   getLatestBlockNumber,
   getBlockByNumber,
   getTransactions,
-  calcConfirmations,
+  calcAdditionToConfirmations,
+  toHexString,
+  parseIntFromHexString,
 } = require('./service');
 const { updateConfirmationsNumber } = require('../Transaction/DAL');
-const { CALLS_TIMEOUT } = require('../../config/constants');
+const { CALLS_TIMEOUT, INITIALIZATION_BLOCKS } = require('../../config/constants');
 const { create, findById } = require('../Transaction/DAL');
 
 /**
- * Last processed or being processed block number
+ * @current last processed or being processed block number
+ * @latest the most new block number
  */
-let currentBlockNumber = '';
+const blockNumber = {
+  current: '',
+  latest: '',
+};
 
 /**
- * Gets the latest block number if it isn't equal to the current.
+ * Sets the initial values to blockNumber properties.
+ */
+async function initializeBlockNumbers() {
+  try {
+    const bn = await getLatestBlockNumber();
+    if (!bn) {
+      throw new Error("Can't initialize. Can't get the latest block number.");
+    }
+    blockNumber.latest = bn;
+    blockNumber.current = toHexString(parseIntFromHexString(bn) - INITIALIZATION_BLOCKS);
+  } catch (e) {
+    console.error(e.message);
+    setTimeout(() => initializeBlockNumbers(), CALLS_TIMEOUT);
+  }
+}
+
+/**
+ * Gets the next block number and updates the latest one if needed.
  * @returns {string | null} next block number or null.
  */
 async function getNextBlockNumber() {
-  const latestBlockNumber = await getLatestBlockNumber();
+  if (blockNumber.current === blockNumber.latest) {
+    const latestBN = await getLatestBlockNumber();
+    blockNumber.latest = latestBN || blockNumber.latest;
+  }
+  if (blockNumber.current === blockNumber.latest) {
+    return null;
+  }
+  blockNumber.current = toHexString(parseIntFromHexString(blockNumber.current) + 1);
 
-  return latestBlockNumber === currentBlockNumber ? null : latestBlockNumber;
+  return blockNumber.current;
 }
 
 /**
@@ -28,7 +58,7 @@ async function getNextBlockNumber() {
  * or update confirmations number if exit.
  * @param {object} block A block of blockchain.
  */
-async function processLatestBlock(block) {
+async function processNextBlock(block) {
   const transactions = getTransactions(block);
   console.log(`got ${transactions.length} transactions`);
 
@@ -40,11 +70,12 @@ async function processLatestBlock(block) {
       await create(item);
       return;
     }
-    const newConfirmations = calcConfirmations(document.blockNumber, currentBlockNumber);
+    const additionalConfirmations = calcAdditionToConfirmations(document.blockNumber, blockNumber.current);
 
-    if (document.confirmations === newConfirmations) {
+    if (!additionalConfirmations) {
       return;
     }
+    const newConfirmations = document.confirmations + additionalConfirmations;
     console.log('Going to update confirmations');
     await updateConfirmationsNumber(_id, newConfirmations);
   });
@@ -63,7 +94,7 @@ async function attempt() {
       return;
     }
 
-    currentBlockNumber = nextBlockNumber;
+    blockNumber.current = nextBlockNumber;
 
     const block = await getBlockByNumber(nextBlockNumber);
 
@@ -71,13 +102,14 @@ async function attempt() {
       return;
     }
 
-    processLatestBlock(block);
+    processNextBlock(block);
   } catch (error) {
     console.error(error.message);
   }
 }
 
 async function scan() {
+  initializeBlockNumbers();
   attempt();
   setTimeout(() => scan(), CALLS_TIMEOUT);
 }

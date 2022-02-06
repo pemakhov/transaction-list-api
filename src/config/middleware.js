@@ -1,7 +1,6 @@
 const bodyParser = require('body-parser');
 const express = require('express');
-
-const { STAGE } = require('./constants');
+const cors = require('cors');
 
 /**
  * Joins middleware to the app.
@@ -10,9 +9,10 @@ const { STAGE } = require('./constants');
 function init(app) {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
+  app.use(cors());
   app.use(express.static('../public'));
 
-  if (STAGE === 'DEV') {
+  if (process.env.NODE_ENV === 'development') {
     app.use(require('morgan')('dev'));
   }
 }

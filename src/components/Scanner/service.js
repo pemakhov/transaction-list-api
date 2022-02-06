@@ -2,6 +2,20 @@ const axios = require('axios');
 const { ETHERSCAN_API_KEY_TOKEN } = require('../../config/constants');
 
 /**
+ * Transforms a number into a hex string.
+ * @param {number} number
+ * @returns a hex string.
+ */
+const toHexString = (number) => number.toString(16);
+
+/**
+ * Parses an integer from a hex string.
+ * @param {string} hexString
+ * @returns an integer.
+ */
+const parseIntFromHexString = (hexString) => parseInt(hexString, 16);
+
+/**
  * Gets the latest block number from etherscan API.
  * @returns {object | undefined}
  */
@@ -34,13 +48,13 @@ async function getBlockByNumber(blockNumber) {
 }
 
 /**
- * Calculates transaction confirmations.
+ * Calculates the addition to transaction confirmations.
  * @param {string} previousBlockNumber blockNumber from a stored transaction.
  * @param {string} nextBlockNumber blockNumber from a fresh block.
  * @returns {number} transaction confirmations number.
  */
-function calcConfirmations(previousBlockNumber, nextBlockNumber) {
-  return Number(nextBlockNumber) - Number(previousBlockNumber);
+function calcAdditionToConfirmations(previousBlockNumber, nextBlockNumber) {
+  return Math.abs(parseIntFromHexString(nextBlockNumber) - parseIntFromHexString(previousBlockNumber));
 }
 
 /**
@@ -96,9 +110,11 @@ function getTransactions(block) {
 }
 
 module.exports = {
-  calcConfirmations,
+  calcAdditionToConfirmations,
   getLatestBlockNumber,
   getBlockByNumber,
   getTransactionByHash,
   getTransactions,
+  toHexString,
+  parseIntFromHexString,
 };
