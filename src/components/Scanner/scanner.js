@@ -60,7 +60,6 @@ async function getNextBlockNumber() {
  */
 async function processNextBlock(block) {
   const transactions = getTransactions(block);
-  console.log(`got ${transactions.length} transactions`);
 
   transactions.forEach(async (item) => {
     const { _id } = item;
@@ -76,7 +75,6 @@ async function processNextBlock(block) {
       return;
     }
     const newConfirmations = document.confirmations + additionalConfirmations;
-    console.log('Going to update confirmations');
     await updateConfirmationsNumber(_id, newConfirmations);
   });
 }
