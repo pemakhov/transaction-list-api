@@ -1,7 +1,7 @@
-const path = require('path');
+// const path = require('path');
 const TransactionRouter = require('../components/Transaction/router');
 
-const pathToIndex = path.join(__dirname, '../public/', 'index.html');
+// const pathToIndex = path.join(__dirname, '../public/build/', 'index.html');
 
 /**
  * Joins router middleware to the app.
@@ -9,11 +9,12 @@ const pathToIndex = path.join(__dirname, '../public/', 'index.html');
 
  */
 function init(app) {
-  app.get('/', (req, res) => {
-    res.sendFile(pathToIndex);
-  });
-
   app.use('/transactions', TransactionRouter);
+
+  app.get('*', (req, res) => {
+    console.log(app.static);
+    res.sendFile(`${__dirname}/../public/build/index.html`);
+  });
 
   app.use((err, req, res, next) => {
     console.error(err.message);

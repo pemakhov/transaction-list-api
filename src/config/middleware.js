@@ -10,7 +10,7 @@ function init(app) {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
   app.use(cors());
-  app.use(express.static('../public'));
+  app.use(express.static(`${__dirname}/../public/build`));
 
   if (process.env.NODE_ENV === 'development') {
     app.use(require('morgan')('dev'));
