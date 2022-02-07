@@ -48,12 +48,12 @@ async function findTransactions({ filter, value, limit, skip }) {
     {
       $facet: {
         transactions: [{ $match: query }, { $skip: skip }, { $limit: limit }],
-        totalCount: [{ $match: query }, { $count: 'pages' }],
+        totalCount: [{ $match: query }, { $count: 'items' }],
       },
     },
   ]);
-  const [{ pages }] = totalCount;
-  return { transactions, pages };
+  const [{ items }] = totalCount;
+  return { transactions, items };
 }
 
 async function findAll({ limit, skip }) {
@@ -61,12 +61,12 @@ async function findAll({ limit, skip }) {
     {
       $facet: {
         transactions: [{ $skip: skip }, { $limit: limit }],
-        totalCount: [{ $match: {} }, { $count: 'pages' }],
+        totalCount: [{ $match: {} }, { $count: 'items' }],
       },
     },
   ]);
-  const [{ pages }] = totalCount;
-  return { transactions, pages };
+  const [{ items }] = totalCount;
+  return { transactions, items };
 }
 
 module.exports = {
