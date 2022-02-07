@@ -6,7 +6,6 @@ const BlockNumberModel = require('./blockNumberModel');
  * @returns {Promise<TransactionModel>}
  */
 function createBlockNumber(blockNumber) {
-  console.log('blockNumber from DAL', blockNumber);
   return BlockNumberModel.create({ _id: blockNumber });
 }
 
