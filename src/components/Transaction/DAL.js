@@ -53,7 +53,19 @@ async function findTransactions({ filter, value, limit, skip }) {
     },
   ]);
   const [{ pages }] = totalCount;
-  console.log({ transactions });
+  return { transactions, pages };
+}
+
+async function findAll({ limit, skip }) {
+  const [{ transactions, totalCount }] = await TransactionModel.aggregate([
+    {
+      $facet: {
+        transactions: [{ $skip: skip }, { $limit: limit }],
+        totalCount: [{ $match: {} }, { $count: 'pages' }],
+      },
+    },
+  ]);
+  const [{ pages }] = totalCount;
   return { transactions, pages };
 }
 
@@ -63,4 +75,5 @@ module.exports = {
   updateConfirmationsNumber,
   findLatestTransactions,
   findTransactions,
+  findAll,
 };
