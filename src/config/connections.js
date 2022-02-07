@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 
-const MONGODB_URI = 'mongodb://localhost:27017/';
-const MONGODB_NAME = 'transactions';
-const MONGO_URI = `${MONGODB_URI}${MONGODB_NAME}`;
+const MONGODB_URI = process.env.MONGODB_URI || '';
 
 const connectOptions = {
   // flag to allow users to fall back to the old
@@ -11,4 +9,4 @@ const connectOptions = {
   useUnifiedTopology: true,
 };
 
-module.exports = mongoose.createConnection(MONGO_URI, connectOptions);
+module.exports = mongoose.createConnection(MONGODB_URI, connectOptions);
