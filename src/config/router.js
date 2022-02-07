@@ -12,7 +12,13 @@ function init(app) {
   app.get('/', (req, res) => {
     res.sendFile(pathToIndex);
   });
+
   app.use('/transactions', TransactionRouter);
+
+  app.use((err, req, res, next) => {
+    console.error(err.message);
+    next();
+  });
 }
 
 module.exports = { init };

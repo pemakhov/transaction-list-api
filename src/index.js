@@ -11,4 +11,4 @@ middleware.init(app);
 router.init(app);
 
 app.listen(PORT, () => console.log(`Listening to the port ${PORT}`));
-Scanner.scan();
+Scanner.init();

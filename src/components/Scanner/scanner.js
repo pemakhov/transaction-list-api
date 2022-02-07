@@ -9,6 +9,7 @@ const {
 const { updateConfirmationsNumber } = require('../Transaction/DAL');
 const { CALLS_TIMEOUT, INITIALIZATION_BLOCKS } = require('../../config/constants');
 const { create, findById } = require('../Transaction/DAL');
+const { findLatest, createBlockNumber } = require('./DAL');
 
 /**
  * @current last processed or being processed block number
@@ -20,6 +21,20 @@ const blockNumber = {
 };
 
 /**
+ * Gets the latest block number from database.
+ * @returns {string | null}
+ */
+async function getLatestBlockNumberFromDb() {
+  const document = await findLatest();
+
+  if (!document) {
+    return null;
+  }
+  const { _id } = document;
+  return _id || null;
+}
+
+/**
  * Sets the initial values to blockNumber properties.
  */
 async function initializeBlockNumbers() {
@@ -28,8 +43,11 @@ async function initializeBlockNumbers() {
     if (!bn) {
       throw new Error("Can't initialize. Can't get the latest block number.");
     }
+
     blockNumber.latest = bn;
-    blockNumber.current = toHexString(parseIntFromHexString(bn) - INITIALIZATION_BLOCKS);
+
+    const blockNumberFromDb = await getLatestBlockNumberFromDb();
+    blockNumber.current = blockNumberFromDb || toHexString(parseIntFromHexString(bn) - INITIALIZATION_BLOCKS);
   } catch (e) {
     console.error(e.message);
     setTimeout(() => initializeBlockNumbers(), CALLS_TIMEOUT);
@@ -88,12 +106,12 @@ async function attempt() {
   try {
     const nextBlockNumber = await getNextBlockNumber();
 
-    if (nextBlockNumber === null) {
+    if (!nextBlockNumber) {
       return;
     }
 
+    createBlockNumber(nextBlockNumber);
     blockNumber.current = nextBlockNumber;
-
     const block = await getBlockByNumber(nextBlockNumber);
 
     if (!block) {
@@ -106,10 +124,20 @@ async function attempt() {
   }
 }
 
+/**
+ * Scans for new block recursively.
+ */
 async function scan() {
-  initializeBlockNumbers();
   attempt();
   setTimeout(() => scan(), CALLS_TIMEOUT);
 }
 
-module.exports = { scan };
+/**
+ * Initializes a scanner.
+ */
+async function init() {
+  await initializeBlockNumbers();
+  scan();
+}
+
+module.exports = { init };
