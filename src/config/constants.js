@@ -1,9 +1,10 @@
 const PORT = process.env.PORT || 3000;
 
+const MONGODB_URI = process.env.MONGODB_URI || '';
+
 const ETHERSCAN_API_KEY_TOKEN = process.env.ETHERSCAN_API_KEY_TOKEN || '';
 
 const CALLS_TIMEOUT = process.env.API_CALL_INTERVAL || 2000;
-console.log({ CALLS_TIMEOUT });
 
 const INITIALIZATION_BLOCKS = Number(process.env.INITIALIZATION_BLOCKS) || 1000;
 
@@ -15,6 +16,7 @@ const GWEI_IN_ETH = 1000000000;
 
 module.exports = {
   PORT,
+  MONGODB_URI,
   ETHERSCAN_API_KEY_TOKEN,
   CALLS_TIMEOUT,
   INITIALIZATION_BLOCKS,

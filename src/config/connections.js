@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const MONGODB_URI = process.env.MONGODB_URI || '';
+const { MONGODB_URI } = require('./constants');
 
 const connectOptions = {
   // flag to allow users to fall back to the old
