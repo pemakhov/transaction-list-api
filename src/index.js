@@ -10,5 +10,5 @@ const app = express();
 middleware.init(app);
 router.init(app);
 
-app.listen(PORT);
+app.listen(PORT, () => console.log(`Listening to the port ${PORT}`));
 Scanner.init();
