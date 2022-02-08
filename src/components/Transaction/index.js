@@ -55,7 +55,6 @@ async function getAllTransactions(req, res, next) {
     const { page, limit } = value;
     const skip = page * limit;
     const data = await findAll({ limit, skip });
-    console.log({ data });
     return res.send(data);
   } catch (e) {
     console.error(e.message);

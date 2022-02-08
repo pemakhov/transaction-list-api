@@ -44,15 +44,9 @@ function findLatestTransactions(limit) {
  */
 async function findTransactions({ filter, value, limit, skip }) {
   const query = { [filter]: value };
-  const [{ transactions, totalCount }] = await TransactionModel.aggregate([
-    {
-      $facet: {
-        transactions: [{ $match: query }, { $skip: skip }, { $limit: limit }],
-        totalCount: [{ $match: query }, { $count: 'items' }],
-      },
-    },
-  ]);
-  const [{ items }] = totalCount;
+  // TODO: replace with aggregation
+  const transactions = await TransactionModel.find(query).skip(skip).limit(limit);
+  const items = await TransactionModel.find(query).count();
   return { transactions, items };
 }
 
@@ -61,7 +55,7 @@ async function findAll({ limit, skip }) {
     {
       $facet: {
         transactions: [{ $skip: skip }, { $limit: limit }],
-        totalCount: [{ $match: {} }, { $count: 'items' }],
+        totalCount: [{ $count: 'items' }],
       },
     },
   ]);
