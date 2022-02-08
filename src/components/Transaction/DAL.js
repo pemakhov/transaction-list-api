@@ -45,8 +45,10 @@ function findLatestTransactions(limit) {
 async function findTransactions({ filter, value, limit, skip }) {
   const query = { [filter]: value };
   // TODO: replace with aggregation
-  const transactions = await TransactionModel.find(query).skip(skip).limit(limit);
-  const items = await TransactionModel.find(query).count();
+  const data = TransactionModel.find(query).skip(skip).limit(limit);
+  const count = TransactionModel.find(query).count();
+  const [transactions, items] = await Promise.all([data, count]);
+
   return { transactions, items };
 }
 

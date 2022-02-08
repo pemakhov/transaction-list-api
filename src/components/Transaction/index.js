@@ -47,7 +47,6 @@ async function getTransactionsByFilter(req, res, next) {
  */
 async function getAllTransactions(req, res, next) {
   try {
-    console.log('getting all');
     const { error, value } = AllTransactionsQuerySchema.validate(req.query);
     if (error) {
       return res.status(400).send({ error });
