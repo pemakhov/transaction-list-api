@@ -1,12 +1,20 @@
 const axios = require('axios');
 const { ETHERSCAN_API_KEY_TOKEN } = require('../../config/constants');
+const HEX_STRING_PREFIX = '0x';
 
 /**
  * Transforms a number into a hex string.
  * @param {number} number
  * @returns a hex string.
  */
-const toHexString = (number) => number.toString(16);
+const toHexString = (number) => `${HEX_STRING_PREFIX}${number.toString(16)}`;
+
+/**
+ * Tests a string to be a hexadecimal number string.
+ * @param {string} hexString a block number.
+ * @returns {boolean}
+ */
+const isHexaDecimal = (hexString) => hexString.slice(0, 2) === HEX_STRING_PREFIX;
 
 /**
  * Parses an integer from a hex string.
@@ -113,6 +121,7 @@ module.exports = {
   calcAdditionToConfirmations,
   getLatestBlockNumber,
   getBlockByNumber,
+  isHexaDecimal,
   getTransactionByHash,
   getTransactions,
   toHexString,

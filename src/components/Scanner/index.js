@@ -104,6 +104,7 @@ async function processNextBlock(block) {
  */
 async function attempt() {
   try {
+    console.log('scanning');
     const nextBlockNumber = await getNextBlockNumber();
 
     if (!nextBlockNumber) {
@@ -129,7 +130,7 @@ async function attempt() {
  */
 async function scan() {
   attempt();
-  setTimeout(() => scan(), CALLS_TIMEOUT);
+  setTimeout(scan, CALLS_TIMEOUT);
 }
 
 /**
