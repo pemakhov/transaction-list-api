@@ -104,7 +104,6 @@ async function processNextBlock(block) {
  */
 async function attempt() {
   try {
-    console.log('scanning');
     const nextBlockNumber = await getNextBlockNumber();
 
     if (!nextBlockNumber) {
