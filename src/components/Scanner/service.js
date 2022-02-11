@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { ETHERSCAN_API_KEY_TOKEN } = require('../../config/constants');
+const { ETHERSCAN_API_KEY_TOKEN, INITIALIZATION_BLOCKS } = require('../../config/constants');
 const HEX_STRING_PREFIX = '0x';
 
 /**
@@ -25,14 +25,19 @@ const parseIntFromHexString = (hexString) => parseInt(hexString, 16);
 
 /**
  * Gets the latest block number from etherscan API.
- * @returns {object | undefined}
+ * @returns {object | undefined | null}
  */
 async function getLatestBlockNumber() {
-  const url = `https://api.etherscan.io/api?module=proxy&action=eth_blockNumber&apikey=${ETHERSCAN_API_KEY_TOKEN}`;
-  const response = await axios.get(url);
-  const lastBlockNumber = response && response?.data?.result;
+  try {
+    const url = `https://api.etherscan.io/api?module=proxy&action=eth_blockNumber&apikey=${ETHERSCAN_API_KEY_TOKEN}`;
+    const response = await axios.get(url);
+    const lastBlockNumber = response && response?.data?.result;
 
-  return lastBlockNumber;
+    return lastBlockNumber;
+  } catch (e) {
+    console.error(e.message);
+    return null;
+  }
 }
 
 /**
@@ -117,6 +122,14 @@ function getTransactions(block) {
   });
 }
 
+/**
+ * Gets the first block number of initialization payload
+ * @param {string} currentBlockNumber
+ * @returns {string}
+ */
+const getInitialBlockNumber = (currentBlockNumber) =>
+  toHexString(parseIntFromHexString(currentBlockNumber) - INITIALIZATION_BLOCKS);
+
 module.exports = {
   calcAdditionToConfirmations,
   getLatestBlockNumber,
@@ -126,4 +139,5 @@ module.exports = {
   getTransactions,
   toHexString,
   parseIntFromHexString,
+  getInitialBlockNumber,
 };

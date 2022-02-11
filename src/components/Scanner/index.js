@@ -5,9 +5,10 @@ const {
   calcAdditionToConfirmations,
   toHexString,
   parseIntFromHexString,
+  getInitialBlockNumber,
 } = require('./service');
 const { updateConfirmationsNumber } = require('../Transaction/DAL');
-const { CALLS_TIMEOUT, INITIALIZATION_BLOCKS } = require('../../config/constants');
+const { CALLS_TIMEOUT } = require('../../config/constants');
 const { create, findById } = require('../Transaction/DAL');
 const { findLatest, createBlockNumber } = require('./DAL');
 
@@ -25,13 +26,19 @@ const blockNumber = {
  * @returns {string | null}
  */
 async function getLatestBlockNumberFromDb() {
-  const document = await findLatest();
+  try {
+    const document = await findLatest();
 
-  if (!document) {
+    if (!document) {
+      return null;
+    }
+
+    const { _id } = document;
+    return _id;
+  } catch (e) {
+    console.error(e.message);
     return null;
   }
-  const { _id } = document;
-  return _id || null;
 }
 
 /**
@@ -40,17 +47,18 @@ async function getLatestBlockNumberFromDb() {
 async function initializeBlockNumbers() {
   try {
     const bn = await getLatestBlockNumber();
-    if (!bn) {
-      throw new Error("Can't initialize. Can't get the latest block number.");
-    }
 
+    if (!bn) {
+      throw new Error("Can't initialize. Can't fetch the latest block number.");
+    }
     blockNumber.latest = bn;
 
     const blockNumberFromDb = await getLatestBlockNumberFromDb();
-    blockNumber.current = blockNumberFromDb || toHexString(parseIntFromHexString(bn) - INITIALIZATION_BLOCKS);
+
+    blockNumber.current = blockNumberFromDb || getInitialBlockNumber(bn);
   } catch (e) {
     console.error(e.message);
-    setTimeout(() => initializeBlockNumbers(), CALLS_TIMEOUT);
+    setTimeout(initializeBlockNumbers, CALLS_TIMEOUT);
   }
 }
 
@@ -59,15 +67,17 @@ async function initializeBlockNumbers() {
  * @returns {string | null} next block number or null.
  */
 async function getNextBlockNumber() {
-  if (blockNumber.current === blockNumber.latest) {
+  if (blockNumber.current >= blockNumber.latest) {
     const latestBN = await getLatestBlockNumber();
-    blockNumber.latest = latestBN || blockNumber.latest;
-  }
-  if (blockNumber.current === blockNumber.latest) {
-    return null;
-  }
-  blockNumber.current = toHexString(parseIntFromHexString(blockNumber.current) + 1);
 
+    if (!latestBN || latestBN <= blockNumber.latest) {
+      return null;
+    }
+
+    blockNumber.latest = latestBN;
+  }
+
+  blockNumber.current = toHexString(parseIntFromHexString(blockNumber.current) + 1);
   return blockNumber.current;
 }
 
@@ -84,16 +94,14 @@ async function processNextBlock(block) {
     const document = await findById(_id);
 
     if (!document) {
-      await create(item);
+      create(item);
       return;
     }
-    const additionalConfirmations = calcAdditionToConfirmations(document.blockNumber, blockNumber.current);
 
-    if (!additionalConfirmations) {
-      return;
-    }
+    const additionalConfirmations = calcAdditionToConfirmations(document.blockNumber, blockNumber.current);
     const newConfirmations = document.confirmations + additionalConfirmations;
-    await updateConfirmationsNumber(_id, newConfirmations);
+
+    updateConfirmationsNumber(_id, newConfirmations);
   });
 }
 

@@ -17,6 +17,7 @@
         "operator-linebreak": "off",
         "object-curly-newline": "off",
         "linebreak-style": 0,
-        "max-len": ["error", { "code": 120 }]
+        "max-len": ["error", { "code": 120 }],
+        "implicit-arrow-linebreak": "off"
     }
 }
