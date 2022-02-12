@@ -64,7 +64,9 @@ async function findAll({ limit, skip }) {
     transactions: [{ $skip: skip }, { $limit: limit }],
     totalCount: [{ $count: 'items' }],
   });
+
   const [{ items }] = totalCount;
+
   return { transactions, items };
 }
 
