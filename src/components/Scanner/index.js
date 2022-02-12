@@ -9,7 +9,7 @@ const {
 } = require('./service');
 const { updateConfirmationsNumber } = require('../Transaction/DAL');
 const { CALLS_TIMEOUT } = require('../../config/constants');
-const { create, findById } = require('../Transaction/DAL');
+const TransactionDAL = require('../Transaction/DAL');
 const { findLatest, createBlockNumber } = require('./DAL');
 
 /**
@@ -82,6 +82,26 @@ async function getNextBlockNumber() {
 }
 
 /**
+ * Stores new transaction or updates confirmations in existing one.
+ * @param {object} item - transaction.
+ * @returns {undefined};
+ */
+async function processTransaction(item) {
+  const { _id } = item;
+  const document = await TransactionDAL.findById(_id);
+
+  if (!document) {
+    TransactionDAL.create(item);
+    return;
+  }
+
+  const additionalConfirmations = calcAdditionToConfirmations(document.blockNumber, blockNumber.current);
+  const newConfirmations = document.confirmations + additionalConfirmations;
+
+  updateConfirmationsNumber(_id, newConfirmations);
+}
+
+/**
  * Stores new transactions into database if they don't exist,
  * or update confirmations number if exit.
  * @param {object} block A block of blockchain.
@@ -89,20 +109,7 @@ async function getNextBlockNumber() {
 async function processNextBlock(block) {
   const transactions = getTransactions(block);
 
-  transactions.forEach(async (item) => {
-    const { _id } = item;
-    const document = await findById(_id);
-
-    if (!document) {
-      create(item);
-      return;
-    }
-
-    const additionalConfirmations = calcAdditionToConfirmations(document.blockNumber, blockNumber.current);
-    const newConfirmations = document.confirmations + additionalConfirmations;
-
-    updateConfirmationsNumber(_id, newConfirmations);
-  });
+  transactions.forEach(processTransaction);
 }
 
 /**
